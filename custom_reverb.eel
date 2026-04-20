@@ -562,8 +562,18 @@ wet_R = er_outR*inc_val_er + h2.y1*inc_val + h2.y5*inc_val_h2 + h1.y1*inc_val_h1
 cf_L = wet_L * (1.0 - cf_amt) + wet_R * cf_amt;
 cf_R = wet_R * (1.0 - cf_amt) + wet_L * cf_amt;
 
-spl0 = gain * (dry_L*dry_amt + cf_L*wet_amt);
-spl1 = gain * (dry_R*dry_amt + cf_R*wet_amt);
+outL = gain * (dry_L*1.0 + cf_L*wet_amt);
+outR = gain * (dry_R*1.0 + cf_R*wet_amt);
+
+spl0 = outL;
+spl1 = outR;
+
+spl2 = outL;
+spl3 = outR;
+spl4 = outL;
+spl5 = outR;
+spl6 = outL;
+spl7 = outR;
 
 shimmer_on > 0 ? (
   shLb[sh_wp] = h2.y0 * 0.3;
@@ -589,6 +599,12 @@ shimmer_on > 0 ? (
 
   spl0 += sh_outL * 0.35;
   spl1 += sh_outR * 0.35;
+  spl2 += sh_outL * 0.35;
+  spl3 += sh_outR * 0.35;
+  spl4 += sh_outL * 0.35;
+  spl5 += sh_outR * 0.35;
+  spl6 += sh_outL * 0.35;
+  spl7 += sh_outR * 0.35;
 
   sh_wp = (sh_wp + 1) & SH_LM1;
 );
