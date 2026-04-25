@@ -185,6 +185,7 @@ SH_LM=65536; SH_LM1=SH_LM-1;
 shLb=ad; ad+=SH_LM;
 shRb=ad; ad+=SH_LM;
 sh_wp=0; sh_gp1=0; sh_gp2=32768;
+sh_fb_L=0; sh_fb_R=0;
 
 h1c=0; h2c=0;
 
@@ -490,12 +491,12 @@ pb5_lo+=0.18*(h2.y5-pb5_lo);
 pb6_lo+=0.18*(h2.y6-pb6_lo);
 pb7_lo+=0.18*(h2.y7-pb7_lo);
 
-h2d0[h2c]=(pb0_lo*fb_lo+(h2.y0-pb0_lo)*fb_hi)*h2fb0+h2gi0*(h1.y0+er_late_outL*0.2);
-h2d1[h2c]=(pb1_lo*fb_lo+(h2.y1-pb1_lo)*fb_hi)*-h2fb1+h2gi1*(h1.y1+er_late_outR*0.2);
+h2d0[h2c]=(pb0_lo*fb_lo+(h2.y0-pb0_lo)*fb_hi)*h2fb0+h2gi0*(h1.y0+er_late_outL*0.2 + sh_fb_L);
+h2d1[h2c]=(pb1_lo*fb_lo+(h2.y1-pb1_lo)*fb_hi)*-h2fb1+h2gi1*(h1.y1+er_late_outR*0.2 + sh_fb_R);
 h2d2[h2c]=(pb2_lo*fb_lo+(h2.y2-pb2_lo)*fb_hi)*h2fb2+h2gi2*(h1.y2+er_late_outL*0.2);
 h2d3[h2c]=(pb3_lo*fb_lo+(h2.y3-pb3_lo)*fb_hi)*-h2fb3+h2gi3*(h1.y3+er_late_outR*0.2);
-h2d4[h2c]=(pb4_lo*fb_lo+(h2.y4-pb4_lo)*fb_hi)*h2fb4+h2gi4*(h1.y4+er_late_outL*0.2);
-h2d5[h2c]=(pb5_lo*fb_lo+(h2.y5-pb5_lo)*fb_hi)*-h2fb5+h2gi5*(h1.y5+er_late_outR*0.2);
+h2d4[h2c]=(pb4_lo*fb_lo+(h2.y4-pb4_lo)*fb_hi)*h2fb4+h2gi4*(h1.y4+er_late_outL*0.2 + sh_fb_L);
+h2d5[h2c]=(pb5_lo*fb_lo+(h2.y5-pb5_lo)*fb_hi)*-h2fb5+h2gi5*(h1.y5+er_late_outR*0.2 + sh_fb_R);
 h2d6[h2c]=(pb6_lo*fb_lo+(h2.y6-pb6_lo)*fb_hi)*h2fb6+h2gi6*(h1.y6+er_late_outL*0.2);
 h2d7[h2c]=(pb7_lo*fb_lo+(h2.y7-pb7_lo)*fb_hi)*-h2fb7+h2gi7*(h1.y7+er_late_outR*0.2);
 
@@ -524,30 +525,24 @@ spl0=outL; spl1=outR;
 //spl6=outL; spl7=outR;
 
 // ─── Shimmer ─────────────────────────────────────────────────────────────────
-shimmer_on>0?(
-  shLb[sh_wp]=h2.y0*0.3;
-  shRb[sh_wp]=h2.y1*0.3;
-
-  sh_gp1+=2.0; sh_gp2+=2.0;
-  sh_gp1>=SH_LM?sh_gp1-=SH_LM;
-  sh_gp2>=SH_LM?sh_gp2-=SH_LM;
-
-  g1_pos=(sh_wp-floor(sh_gp1)+SH_LM)&SH_LM1;
-  g2_pos=(sh_wp-floor(sh_gp2)+SH_LM)&SH_LM1;
-
-  ph1=sh_gp1/(SH_LM*0.5); ph2=sh_gp2/(SH_LM*0.5);
-  ph1>1.0?ph1-=floor(ph1);
-  ph2>1.0?ph2-=floor(ph2);
-  w1=0.5*(1-cos(ph1*2*$pi));
-  w2=0.5*(1-cos(ph2*2*$pi));
-
-  sh_outL=shLb[g1_pos]*w1+shLb[g2_pos]*w2;
-  sh_outR=shRb[g1_pos]*w1+shRb[g2_pos]*w2;
-
-  spl0+=sh_outL*0.35; spl1+=sh_outR*0.35;
-  //spl2+=sh_outL*0.35; spl3+=sh_outR*0.35;
-  //spl4+=sh_outL*0.35; spl5+=sh_outR*0.35;
-  //spl6+=sh_outL*0.35; spl7+=sh_outR*0.35;
-
-  sh_wp=(sh_wp+1)&SH_LM1;
+shimmer_on > 0 ? (
+  shLb[sh_wp] = h2.y0 * 0.2;
+  shRb[sh_wp] = h2.y1 * 0.2;
+  sh_gp1 += 2.0;
+  sh_gp2 += 2.0;
+  sh_gp1 >= SH_LM ? sh_gp1 -= SH_LM;
+  sh_gp2 >= SH_LM ? sh_gp2 -= SH_LM;
+  g1_pos = (sh_wp - floor(sh_gp1) + SH_LM) & SH_LM1;
+  g2_pos = (sh_wp - floor(sh_gp2) + SH_LM) & SH_LM1;
+  ph1 = sh_gp1 / (SH_LM * 0.5);
+  ph2 = sh_gp2 / (SH_LM * 0.5);
+  ph1 -= floor(ph1);
+  ph2 -= floor(ph2);
+  w1 = 0.5 * (1 - cos(ph1 * 2*$pi));
+  w2 = 0.5 * (1 - cos(ph2 * 2*$pi));
+  sh_outL = shLb[g1_pos]*w1 + shLb[g2_pos]*w2;
+  sh_outR = shRb[g1_pos]*w1 + shRb[g2_pos]*w2;
+  sh_fb_L = tanh(sh_outL * 0.2);
+  sh_fb_R = tanh(sh_outR * 0.2);
+  sh_wp = (sh_wp + 1) & SH_LM1;
 );
