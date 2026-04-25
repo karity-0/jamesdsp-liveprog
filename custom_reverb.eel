@@ -4,7 +4,7 @@ desc: custom reverb
 
 slider1:0.15<0.01,2>Base Delay (s)
 slider2:0.38<0.0,5.0>Fb 1 (Chorus)
-slider3:1.50<0.0,5.0>Fb 2 (Reverb)
+slider3:2.00<0.0,5.0>Fb 2 (Reverb)
 slider4:0.45<0.0,1.0>HF Damping (0=bright 1=dark)
 slider5:2<1,8>Allpass Stages
 slider6:0.45<0.0,1.0>Allpass Diffusion
@@ -267,7 +267,7 @@ slider14 != _prev_sl14 ? (
 // FDN 피드백/게인 계수
 (slider2!=_prev_sl2)||(slider3!=_prev_sl3) ? (
   _prev_sl2=slider2; _prev_sl3=slider3;
-  sl2=1/(1+slider2); sl3=1/(1+slider3);
+  sl2=1/(1+slider2); sl3 = slider3/5.0;
 
   h1fb0=(1-sl2)*HAD8_NORM;       h1gi0=sl2*HAD8_NORM;
   h1fb1=h1fb0;                    h1gi1=h1gi0;
