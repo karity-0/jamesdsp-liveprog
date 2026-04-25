@@ -374,6 +374,7 @@ pd_wp=(pd_wp+1)&PD_LM1;
 // ─── Early Reflections ───────────────────────────────────────────────────────
 erLb[er_wp]=in0; erRb[er_wp]=in1;
 er_outL=0; er_outR=0; prev_erL=0; prev_erR=0;
+er_late_outL = 0; er_late_outR = 0;
 i=0;
 loop(12,
   tsL=floor(er_tL[i]*srate);
@@ -384,6 +385,7 @@ loop(12,
   cur_erL=cur_erL*(1.0-late_factor)+prev_erL*late_factor*0.3;
   cur_erR=cur_erR*(1.0-late_factor)+prev_erR*late_factor*0.3;
   er_outL+=cur_erL; er_outR+=cur_erR;
+  i>=6 ? (er_late_outL+=cur_erL; er_late_outR+=cur_erR;);
   prev_erL=prev_erL*0.6+cur_erL*0.4;
   prev_erR=prev_erR*0.6+cur_erR*0.4;
   i+=1;
@@ -468,14 +470,14 @@ h2.x0=hx2_0;h2.x1=hx2_1;h2.x2=hx2_2;h2.x3=hx2_3;
 h2.x4=hx2_4;h2.x5=hx2_5;h2.x6=hx2_6;h2.x7=hx2_7;
 h2.HAD8_mix();
 
-h2d0[h2c]=h2fb0* h2.y0+h2gi0*(h1.y0+er_outL*0.1);
-h2d1[h2c]=h2fb1*-h2.y1+h2gi1*(h1.y1+er_outR*0.1);
-h2d2[h2c]=h2fb2* h2.y2+h2gi2*(h1.y2+er_outL*0.1);
-h2d3[h2c]=h2fb3*-h2.y3+h2gi3*(h1.y3+er_outR*0.1);
-h2d4[h2c]=h2fb4* h2.y4+h2gi4*(h1.y4+er_outL*0.1);
-h2d5[h2c]=h2fb5*-h2.y5+h2gi5*(h1.y5+er_outR*0.1);
-h2d6[h2c]=h2fb6* h2.y6+h2gi6*(h1.y6+er_outL*0.1);
-h2d7[h2c]=h2fb7*-h2.y7+h2gi7*(h1.y7+er_outR*0.1);
+h2d0[h2c]=h2fb0*h2.y0+h2gi0*(h1.y0+er_late_outL*0.2);
+h2d1[h2c]=h2fb1*-h2.y1+h2gi1*(h1.y1+er_late_outR*0.2);
+h2d2[h2c]=h2fb2*h2.y2+h2gi2*(h1.y2+er_late_outL*0.2);
+h2d3[h2c]=h2fb3*-h2.y3+h2gi3*(h1.y3+er_late_outR*0.2);
+h2d4[h2c]=h2fb4*h2.y4+h2gi4*(h1.y4+er_late_outL*0.2);
+h2d5[h2c]=h2fb5*-h2.y5+h2gi5*(h1.y5+er_late_outR*0.2);
+h2d6[h2c]=h2fb6*h2.y6+h2gi6*(h1.y6+er_late_outL*0.2);
+h2d7[h2c]=h2fb7*-h2.y7+h2gi7*(h1.y7+er_late_outR*0.2);
 h2c=(h2c+1)&HAD8_LM1;
 
 // ─── Output mix ──────────────────────────────────────────────────────────────
