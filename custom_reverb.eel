@@ -208,6 +208,12 @@ _prev_sl11 = -9999; _prev_sl14 = -9999; _prev_sl17 = -9999;
 
 // HPF biquad
 lc_b0=0; lc_b1=0; lc_b2=0; lc_a1=0; lc_a2=0;
+
+// Per-band
+pb0_lo=pb1_lo=pb2_lo=pb3_lo=0;
+pb4_lo=pb5_lo=pb6_lo=pb7_lo=0;
+fb_lo=0.95; fb_hi=0.85;
+
 // sat
 sat_drive=1.0;
 // gain
@@ -279,6 +285,11 @@ slider14 != _prev_sl14 ? (
   h2fb5=h2fb1;                    h2gi5=h2gi1;
   h2fb6=(1-1.27*sl3)*HAD8_NORM;   h2gi6=1.27*sl3*HAD8_NORM;
   h2fb7=(1-1.31*sl3)*HAD8_NORM;   h2gi7=1.31*sl3*HAD8_NORM;
+
+  fb_lo = sl3 * 1.00;
+  fb_hi = sl3 * 0.90;
+  fb_lo = fb_lo > 0.98 ? 0.98 : fb_lo;
+  fb_hi = fb_hi > 0.98 ? 0.98 : fb_hi;
 );
 
 // 딜레이 베이스 길이
@@ -470,14 +481,24 @@ h2.x0=hx2_0;h2.x1=hx2_1;h2.x2=hx2_2;h2.x3=hx2_3;
 h2.x4=hx2_4;h2.x5=hx2_5;h2.x6=hx2_6;h2.x7=hx2_7;
 h2.HAD8_mix();
 
-h2d0[h2c]=h2fb0*h2.y0+h2gi0*(h1.y0+er_late_outL*0.2);
-h2d1[h2c]=h2fb1*-h2.y1+h2gi1*(h1.y1+er_late_outR*0.2);
-h2d2[h2c]=h2fb2*h2.y2+h2gi2*(h1.y2+er_late_outL*0.2);
-h2d3[h2c]=h2fb3*-h2.y3+h2gi3*(h1.y3+er_late_outR*0.2);
-h2d4[h2c]=h2fb4*h2.y4+h2gi4*(h1.y4+er_late_outL*0.2);
-h2d5[h2c]=h2fb5*-h2.y5+h2gi5*(h1.y5+er_late_outR*0.2);
-h2d6[h2c]=h2fb6*h2.y6+h2gi6*(h1.y6+er_late_outL*0.2);
-h2d7[h2c]=h2fb7*-h2.y7+h2gi7*(h1.y7+er_late_outR*0.2);
+pb0_lo+=0.18*(h2.y0-pb0_lo);
+pb1_lo+=0.18*(h2.y1-pb1_lo);
+pb2_lo+=0.18*(h2.y2-pb2_lo);
+pb3_lo+=0.18*(h2.y3-pb3_lo);
+pb4_lo+=0.18*(h2.y4-pb4_lo);
+pb5_lo+=0.18*(h2.y5-pb5_lo);
+pb6_lo+=0.18*(h2.y6-pb6_lo);
+pb7_lo+=0.18*(h2.y7-pb7_lo);
+
+h2d0[h2c]=(pb0_lo*fb_lo+(h2.y0-pb0_lo)*fb_hi)*h2fb0+h2gi0*(h1.y0+er_late_outL*0.2);
+h2d1[h2c]=(pb1_lo*fb_lo+(h2.y1-pb1_lo)*fb_hi)*-h2fb1+h2gi1*(h1.y1+er_late_outR*0.2);
+h2d2[h2c]=(pb2_lo*fb_lo+(h2.y2-pb2_lo)*fb_hi)*h2fb2+h2gi2*(h1.y2+er_late_outL*0.2);
+h2d3[h2c]=(pb3_lo*fb_lo+(h2.y3-pb3_lo)*fb_hi)*-h2fb3+h2gi3*(h1.y3+er_late_outR*0.2);
+h2d4[h2c]=(pb4_lo*fb_lo+(h2.y4-pb4_lo)*fb_hi)*h2fb4+h2gi4*(h1.y4+er_late_outL*0.2);
+h2d5[h2c]=(pb5_lo*fb_lo+(h2.y5-pb5_lo)*fb_hi)*-h2fb5+h2gi5*(h1.y5+er_late_outR*0.2);
+h2d6[h2c]=(pb6_lo*fb_lo+(h2.y6-pb6_lo)*fb_hi)*h2fb6+h2gi6*(h1.y6+er_late_outL*0.2);
+h2d7[h2c]=(pb7_lo*fb_lo+(h2.y7-pb7_lo)*fb_hi)*-h2fb7+h2gi7*(h1.y7+er_late_outR*0.2);
+
 h2c=(h2c+1)&HAD8_LM1;
 
 // ─── Output mix ──────────────────────────────────────────────────────────────
